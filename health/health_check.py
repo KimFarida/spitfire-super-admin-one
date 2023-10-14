@@ -1,13 +1,10 @@
-import logging, os
-from flask import jsonify, Blueprint, current_app as app
+import os
+from flask import jsonify, current_app as app
 import datetime
 from dotenv import load_dotenv
+from . import health_check_blueprint, check_endpoint
 
 load_dotenv(".env")
-
-logging.basicConfig(filename='health_check.log', level=logging.ERROR)
-
-health_check_blueprint = Blueprint("health_check", __name__, url_prefix="/api/admin/health")
 
 shop_id = os.environ.get("SHOP_ID")
 product_id = os.environ.get("PRODUCT_ID")
@@ -63,33 +60,3 @@ def last_check():
         return jsonify(last_check_entry)
     else:
         return jsonify({"message": "No health check logs available"}), 404
-
-def check_endpoint(endpoint_url, http_method):
-    base_url = "https://spitfire-superadmin-1.onrender.com"
-    full_url = f"{base_url}{endpoint_url}"
-    try:
-        if http_method == "GET":
-            response = app.test_client().get(full_url)
-        elif http_method == "PUT":
-            response = app.test_client().put(full_url)
-        elif http_method == "POST":
-            response = app.test_client().post(full_url)
-        elif http_method == "DELETE":
-            response = app.test_client().delete(full_url)
-        elif http_method == "PATCH":
-            response = app.test_client().patch(full_url)
-        else:
-            return "invalid method"
-
-        response_data = response.data.decode('utf-8')  # Convert bytes to string
-        print(f"Response from {full_url}: {response_data}")  # Print the response content
-
-        success_code = [200, 201, 204, 404, 403, 401]
-        if response.status_code in success_code:
-            return "active"
-        else:
-            logging.error(f"Error occurred while checking {full_url}. Status Code: {response.status_code}")
-            return "inactive"
-    except Exception as e:
-        logging.error(f"Error occurred while checking {full_url}: {e}")
-        return "inactive"

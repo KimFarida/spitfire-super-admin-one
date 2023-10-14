@@ -44,7 +44,7 @@ def create_app():
     from super_admin_1.products.routes import product
     from super_admin_1.shop.func_helpers import test
     from super_admin_1.errors.handlers import error
-    from health_check import health_check_blueprint
+    from health import health_check_blueprint
     from super_admin_1.notification.routes import notification
 
     # register blueprint
